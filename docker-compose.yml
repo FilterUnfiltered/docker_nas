@@ -1,0 +1,41 @@
+services:
+  secure-mount:
+    build: 
+      context: .
+      args:
+        GOCRYPTFS_MOUNT: "${GOCRYPTFS_MOUNT}"
+        SSHFS_LOCAL_PATH: "${SSHFS_LOCAL_PATH}"
+    container_name: secure-mount
+    privileged: true  # Required for FUSE
+    env_file:
+      - .env
+    volumes:
+      - ./id_rsa:/id_rsa:ro
+      - type: bind
+        source: ./data
+        target: "${GOCRYPTFS_MOUNT}"
+        bind:
+          propagation: rshared
+
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
+    healthcheck:
+      test: ["CMD", "sh", "-c", "mountpoint -q ${GOCRYPTFS_MOUNT}"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 10s
+    pre_stop:
+        - command: ./cleanup.sh
+  
+  test:
+    image: alpine:3.19
+    container_name: test-writer
+    depends_on:
+      secure-mount:
+        condition: service_healthy
+    command: sh -c "echo 'Hello from Docker!' > ${GOCRYPTFS_MOUNT}/hello.txt && sleep infinity"
+    volumes_from:
+      - secure-mount

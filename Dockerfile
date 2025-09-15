@@ -19,6 +19,7 @@ RUN mkdir -p ${SSHFS_LOCAL_PATH} ${GOCRYPTFS_MOUNT}
 COPY entrypoint.sh /entrypoint.sh
 COPY cleanup.sh /cleanup.sh
 RUN chmod +x /entrypoint.sh /cleanup.sh
+RUN echo user_allow_other >> /etc/fuse.conf
 
 
 ENTRYPOINT ["/sbin/tini", "--", "/entrypoint.sh"]

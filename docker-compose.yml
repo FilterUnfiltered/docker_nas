@@ -33,6 +33,7 @@ services:
   test:
     image: alpine:3.19
     container_name: test-writer
+    user: 1004:1004
     depends_on:
       secure-mount:
         condition: service_healthy

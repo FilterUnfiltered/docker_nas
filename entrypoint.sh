@@ -21,8 +21,12 @@ fi
 
 
 echo "Mounting remote: $SSHFS_REMOTE:$SSHFS_REMOTE_PATH -> $SSHFS_LOCAL_PATH"
-sshfs -o allow_other -o IdentityFile=/id_rsa -o StrictHostKeyChecking=no \
-  "$SSHFS_REMOTE:$SSHFS_REMOTE_PATH" "$SSHFS_LOCAL_PATH"
+sshfs   -o allow_other \
+	-o IdentityFile=/id_rsa \
+	-o StrictHostKeyChecking=no \
+	-o umask=000 \
+	"$SSHFS_REMOTE:$SSHFS_REMOTE_PATH" \
+	"$SSHFS_LOCAL_PATH"
 
 echo "Mounting gocryptfs -> $GOCRYPTFS_MOUNT"
 
